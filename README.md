@@ -11,4 +11,9 @@ The lambda will cover any newly created log groups, but we still need to address
 
 So now we have a corrective control in place and we’ve addressed the log groups that already existed by setting their retention to a number other than “Never Expire”. When I implemented these tools in a client’s environment, they asked me to also delete any existing log groups that were older than the new set retention. In this case it was 60 days. So, the second script you’ll find in that scipts folder is `delete-old-logs.sh`. At the top of this script you will set the date that you will want to delete up to. Important note here is that the timestamp is an epoch timestamp in milliseconds. https://www.epochconverter.com/ is a site that will convert your date to the correct timestamp. The script will query the CloudWatch Log Groups for all groups that have a creation date less than your given timestamp and delete it. 
 
+These are the three tools I used to address my customer’s concerns when it came to costs of Cloudwatch Log Group storage. If you have any comments, suggestions or new ideas, please share and contribute! Thanks.
+
+More technical blog posts and industry information can be found here:
+https://onica.com/blog/
+
 The Cloudwatch log group retention script was forked off of https://github.com/swoodford/aws and modified by Joe Solito.
