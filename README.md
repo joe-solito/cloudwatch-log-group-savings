@@ -1,5 +1,5 @@
 ## Controlling costs of CloudWatch Log Storage
-####Helpful tools to manage log retention and to delete older log groups
+#### Helpful tools to manage log retention and to delete older log groups
 
 While the costs-saved may be low, there is room to save nonetheless in CloudWatch log storage. Specifically, this post will look at how we can manage CloudWatch log group retention to save money. By default, logs are kept indefinitely and never expire. Overtime storage and usage of these logs can be costly. You can adjust the retention policy for each log group, keeping the indefinite retention, or choosing a retention periods between 10 years and one day.
 
