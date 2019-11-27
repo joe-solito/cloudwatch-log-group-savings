@@ -14,7 +14,7 @@ DEBUGMODE="0"
 # Functions
 
 # Run  pre-script commands
-. scripts/_pre_script_commands.sh
+. _pre_script_commands.sh
 
 # Verify AWS CLI Credentials are setup
 # http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
