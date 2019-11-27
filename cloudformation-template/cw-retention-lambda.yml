@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Template for CW log group retention automation"
+
+Parameters:
+  ParamS3Bucket:
+    Description: The S3 Bucket that holds the lambda code
+    Type: String
+  ParamS3Key:
+    Description: The S3 key for the lambda code zip file
+    Type: String
+  CW_RETENTION_PERIOD:
+    Description: The number of days to retain the log events in the specified log group.
+    Type: Number
+
+Resources:
+  CWRetentionLambdaActionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+        Version: '2012-10-17'
+      Path: /
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:CreateLogGroup
+            - logs:PutLogEvents
+            - logs:PutRetentionPolicy
+            - logs:ListTagsLogGroup
+            - logs:TagLogGroup
+            - logs:DescribeLogGroups
+            Resource: '*'
+        PolicyName: AccountLambdaActionPolicy
+
+  CWRetentionLambdaFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: "CW-Retention-Lambda"
+      Description: "Lambda to automatically change cloudwatch log group retentions and tag groups"
+      Handler: app.lambda_handler
+      Runtime: python3.6
+      MemorySize: 128
+      Timeout: 500
+      Role: !GetAtt CWRetentionLambdaActionRole.Arn
+      Code:
+        S3Bucket: !Ref ParamS3Bucket
+        S3Key: !Ref ParamS3Key
+      Environment:
+        Variables:
+          CW_RETENTION_PERIOD: !Ref CW_RETENTION_PERIOD
+
+  CWRetentionLambdaRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: job to trigger CW retention Lambda whenever log group is created
+      EventPattern:
+        source:
+            - "aws.logs"
+        detail-type:
+            - "AWS API Call via CloudTrail"
+        detail:
+            eventSource:
+            - "logs.amazonaws.com"
+            eventName:
+            - "CreateLogGroup"
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt CWRetentionLambdaFunction.Arn
+          Id: lambda
+
+  CWRetentionLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt CWRetentionLambdaFunction.Arn
+      Principal: 'events.amazonaws.com'
+      SourceArn: !GetAtt CWRetentionLambdaRule.Arn
+

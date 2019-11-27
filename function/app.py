@@ -3,7 +3,7 @@ import time
 import boto3
 
 cloudwatchLogs = boto3.client('logs')
-retentionInDays = os.environ['CW_RETENTION_PERIOD']
+retentionInDays = 60
 
 def setRetention(logGroupName):
     cloudwatchLogs.put_retention_policy(logGroupName=logGroupName, retentionInDays=int(retentionInDays))
